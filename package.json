@@ -1,0 +1,21 @@
+{
+  "name": "slide",
+  "version": "1.0.0",
+  "description": "Make element children slide",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "sass": "sass demo/style/style.scss demo/style/style.css",
+    "tsc": "tsc --project tsconfig.json",
+    "all": "sass demo/style/style.scss demo/style/style.css && tsc --project tsconfig.json"
+  },
+  "keywords": [
+    "Slide"
+  ],
+  "author": "Jules Junior",
+  "license": "ISC",
+  "dependencies": {
+    "sass": "^1.37.5",
+    "typescript": "^4.3.5"
+  }
+}

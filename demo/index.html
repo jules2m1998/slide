@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test slide</title>
+    <link rel="stylesheet" href="./style/style.css">
+</head>
+<body>
+    <div class="slider">
+        <div class="slider-content" id="js-slide">
+            <div class="slider-content-item">
+                1
+            </div>
+            <div class="slider-content-item">
+                2
+            </div>
+            <div class="slider-content-item">
+                3
+            </div>
+            <div class="slider-content-item">
+                4
+            </div>
+            <div class="slider-content-item">
+                5
+            </div>
+            <div class="slider-content-item">
+                6
+            </div>
+            <div class="slider-content-item">
+                7
+            </div>
+        </div>
+    </div>
+    <script type="module" defer>
+        import Slide from "./js";
+        Slide(document.querySelector('#js-slide'), {
+          autoAdjust: true,
+          gap: 10
+        })
+    </script>
+</body>
+</html>
