@@ -77,9 +77,7 @@ class Slide {
   replacer(move: number): number {
     const ratio = Math.round(move / this.childWidth)
     const returnTo = this.child[-1 * ratio]
-    const x = (returnTo?.getBoundingClientRect().left || 0) - this.el.getBoundingClientRect().left
-    console.log(x)
-    return x
+    return (returnTo?.getBoundingClientRect().left || 0) - this.el.getBoundingClientRect().left
   }
 
   onPointerDown(e: MouseEvent) {
@@ -104,7 +102,7 @@ class Slide {
       ...{
         autoAdjust: false,
         gap: 0,
-        duration: 0
+        duration: .3
       },
       ...params
     }

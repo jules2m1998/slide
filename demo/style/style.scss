@@ -12,10 +12,32 @@ body {
   .slider {
     width: 50%;
     overflow: hidden;
+    margin-top: 20px;
+
     &-content {
       display: flex;
       &-item {
         width: 200px;
+        height: 200px;
+        background: black;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-shrink: 0;
+        flex-grow: 0;
+
+        &:nth-child(2n) {
+          background: rgba(73, 73, 142, 0.64);
+        }
+      }
+    }
+
+    &-content-1 {
+      display: flex;
+      margin-top: 20px;
+
+      &-item {
+        width: 600px;
         height: 200px;
         background: black;
         display: flex;

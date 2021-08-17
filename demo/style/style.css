@@ -12,6 +12,7 @@ body {
 body .slider {
   width: 50%;
   overflow: hidden;
+  margin-top: 20px;
 }
 body .slider-content {
   display: flex;
@@ -27,6 +28,23 @@ body .slider-content-item {
   flex-grow: 0;
 }
 body .slider-content-item:nth-child(2n) {
+  background: rgba(73, 73, 142, 0.64);
+}
+body .slider-content-1 {
+  display: flex;
+  margin-top: 20px;
+}
+body .slider-content-1-item {
+  width: 600px;
+  height: 200px;
+  background: black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  flex-grow: 0;
+}
+body .slider-content-1-item:nth-child(2n) {
   background: rgba(73, 73, 142, 0.64);
 }
 
