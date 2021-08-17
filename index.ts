@@ -2,6 +2,7 @@ class Slide {
   joinParams: any = {}
   el: HTMLElement
   parent: HTMLElement
+  child: Element[]
   elWidth = 0
   childWidth = 0
   elementInitLeft = 0
@@ -71,12 +72,14 @@ class Slide {
   onPointerUp(e: MouseEvent) {
     this.el.removeEventListener('pointermove', this.eventPointerMove)
     this.el.style.transition = `${this.joinParams.duration}s`
-    this.el.style.transform = `translateX(${this.replacer(this.pointerEnd)}px)`
+    this.el.style.transform = `translateX(-${this.replacer(this.pointerEnd)}px)`
   }
   replacer(move: number): number {
     const ratio = Math.round(move / this.childWidth)
-    console.log(this.childWidth * ratio + (ratio * (this.joinParams.gap - 1)))
-    return Math.floor(this.childWidth * ratio + (ratio * (this.joinParams.gap - 1))) -  1
+    const returnTo = this.child[-1 * ratio]
+    const x = (returnTo?.getBoundingClientRect().left || 0) - this.el.getBoundingClientRect().left
+    console.log(x)
+    return x
   }
 
   onPointerDown(e: MouseEvent) {
@@ -108,18 +111,18 @@ class Slide {
     this.el = el
     this.parent = this.el.parentElement as HTMLElement
     this.el.style.transition = `${this.joinParams.duration}s`
+    this.child = Array.from(this.el.children)
     // TODO if autoAdjust is true make adjust
     if (this.joinParams.autoAdjust) {
       const firstChild = this.el.firstElementChild
-      const child = Array.from(this.el.children)
-      const childCount = child.length
+      const childCount = this.child.length
 
       const firstChildWidth = firstChild?.getBoundingClientRect().width || 0
       const parentWidth = this.parent?.getBoundingClientRect().width || 0
 
       const ratio = Math.trunc((parentWidth + this.joinParams.gap) / (firstChildWidth + this.joinParams.gap))
 
-      this.adjustChildren(this.el, childCount, ratio, firstChildWidth, parentWidth, this.joinParams.gap, child)
+      this.adjustChildren(this.el, childCount, ratio, firstChildWidth, parentWidth, this.joinParams.gap, this.child)
     }
     // TODO Add scroll behavior
     this.el.style.position = 'relative'
