@@ -74,11 +74,18 @@ class Slide {
     }
     onTouchStart(e) {
         e.preventDefault();
+        this.el.removeEventListener('pointerdown', this.pointerDown);
         this.el.style.transition = 'none';
         const style = window.getComputedStyle(this.el);
         const matrix = new WebKitCSSMatrix(style.transform);
         this.translateX = matrix.m41;
         this.pointerStart = e.changedTouches[0].pageX;
+        this.el.addEventListener('touchend', this.onTouchCancel.bind(this));
+        this.el.addEventListener('touchcancel', this.onTouchCancel.bind(this));
+    }
+    onTouchCancel() {
+        this.el.addEventListener('pointerdown', this.pointerDown);
+        this.onPointerUp();
     }
     autoAdjust() {
         if (this.joinParams.autoAdjust) {
