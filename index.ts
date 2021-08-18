@@ -60,6 +60,7 @@ class Slide {
   }
 
   onPointerMove(e: MouseEvent) {
+    console.log('Move')
     const move = this.translateX - (this.pointerStart - e.pageX)
     const restVisible = this.elWidth + move
 
@@ -70,6 +71,7 @@ class Slide {
   }
 
   onPointerUp(e: MouseEvent) {
+    console.log('Up')
     this.el.removeEventListener('pointermove', this.eventPointerMove)
     this.el.style.transition = `${this.joinParams.duration}s`
     this.el.style.transform = `translateX(-${this.replacer(this.pointerEnd)}px)`
@@ -81,6 +83,7 @@ class Slide {
   }
 
   onPointerDown(e: MouseEvent) {
+    console.log('Down')
     e.preventDefault()
     this.el.style.transition = 'none'
     const style = window.getComputedStyle(this.el);

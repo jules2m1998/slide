@@ -54,6 +54,7 @@ class Slide {
         this.elWidth = (this.childWidth + gap - 1) * childCount;
     }
     onPointerMove(e) {
+        console.log('Move');
         const move = this.translateX - (this.pointerStart - e.pageX);
         const restVisible = this.elWidth + move;
         if (move < 0 && restVisible > this.parent.getBoundingClientRect().width) {
@@ -62,6 +63,7 @@ class Slide {
         }
     }
     onPointerUp(e) {
+        console.log('Up');
         this.el.removeEventListener('pointermove', this.eventPointerMove);
         this.el.style.transition = `${this.joinParams.duration}s`;
         this.el.style.transform = `translateX(-${this.replacer(this.pointerEnd)}px)`;
@@ -72,6 +74,7 @@ class Slide {
         return (returnTo?.getBoundingClientRect().left || 0) - this.el.getBoundingClientRect().left;
     }
     onPointerDown(e) {
+        console.log('Down');
         e.preventDefault();
         this.el.style.transition = 'none';
         const style = window.getComputedStyle(this.el);
