@@ -61,14 +61,15 @@ class Slide {
   onPointerMove(e: MouseEvent) {
     const move = this.translateX - (this.pointerStart - e.pageX)
     const restVisible = this.elWidth + move
+    this.el.style.transform = `translateX(${move}px)`
 
     if (move < 0 && restVisible > this.parent.getBoundingClientRect().width) {
-      this.el.style.transform = `translateX(${move}px)`
       this.pointerEnd = move
     }
   }
 
   onPointerUp() {
+    this.el.style.cursor = 'grab'
     this.el.removeEventListener('pointermove', this.eventPointerMove)
     this.el.style.transition = `${this.joinParams.duration}s`
     this.el.style.transform = `translateX(-${this.replacer(this.pointerEnd)}px)`
@@ -81,6 +82,9 @@ class Slide {
     const matrix = new WebKitCSSMatrix(style.transform);
     this.translateX = matrix.m41
     this.pointerStart = e.pageX
+    this.el.style.touchAction = 'pan-y'
+    this.el.style.cursor = 'grabbing'
+
     this.el.addEventListener('pointermove', this.eventPointerMove)
 
     document.addEventListener('pointerup', this.onPointerUp.bind(this))
