@@ -105,8 +105,9 @@ class Slide {
 
   autoAdjust() {
     if (this.joinParams.autoAdjust) {
+      this.el.style.transform = `translateX(0px)`
       const parentWidth = this.parent?.getBoundingClientRect().width || 0
-      const ratio = Math.trunc((parentWidth + this.joinParams.gap) / (this.firstChildWidth + this.joinParams.gap))
+      const ratio = Math.trunc((parentWidth + this.joinParams.gap) / (this.firstChildWidth + this.joinParams.gap)) || 1
       this.adjustChildren(this.el, this.childCount, ratio, this.firstChildWidth, parentWidth, this.joinParams.gap, this.child)
     }
   }
