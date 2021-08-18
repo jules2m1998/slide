@@ -9,7 +9,84 @@ class Slide {
     pointerStart = 0;
     pointerEnd = 0;
     eventPointerMove;
+    pointerDown;
     translateX = 0;
+    firstChild;
+    childCount = 0;
+    firstChildWidth = 0;
+    /**
+     * Add a slide comportment to children of element
+     * @param el {HTMLElement} element dom when you want to make children slide
+     * @param params {Object} the parameters to apply
+     */
+    constructor(el, params = {}) {
+        this.joinParams = {
+            ...{
+                autoAdjust: false,
+                gap: 0,
+                duration: .3
+            },
+            ...params
+        };
+        this.el = el;
+        this.parent = this.el.parentElement;
+        this.el.style.transition = `${this.joinParams.duration}s`;
+        this.child = Array.from(this.el.children);
+        this.firstChild = this.el.firstElementChild;
+        this.childCount = this.child.length;
+        this.firstChildWidth = this.firstChild?.getBoundingClientRect().width || 0;
+        this.pointerDown = this.onPointerDown.bind(this);
+        this.eventPointerMove = this.onPointerMove.bind(this);
+        // TODO if autoAdjust is true make adjust
+        this.autoAdjust();
+        // TODO Add scroll behavior
+        this.el.style.position = 'relative';
+        this.elementInitLeft = this.el.getBoundingClientRect().left;
+        this.el.addEventListener('pointerdown', this.pointerDown);
+        // TODO Add finger scroll behavior
+        this.el.addEventListener('touchstart', this.onTouchStart.bind(this));
+        // TODO Apply params
+        // TODO manage responsive
+        window.addEventListener('resize', this.autoAdjust.bind(this));
+    }
+    onPointerMove(e) {
+        const move = this.translateX - (this.pointerStart - e.pageX);
+        const restVisible = this.elWidth + move;
+        if (move < 0 && restVisible > this.parent.getBoundingClientRect().width) {
+            this.el.style.transform = `translateX(${move}px)`;
+            this.pointerEnd = move;
+        }
+    }
+    onPointerUp() {
+        this.el.removeEventListener('pointermove', this.eventPointerMove);
+        this.el.style.transition = `${this.joinParams.duration}s`;
+        this.el.style.transform = `translateX(-${this.replacer(this.pointerEnd)}px)`;
+    }
+    onPointerDown(e) {
+        e.preventDefault();
+        this.el.style.transition = 'none';
+        const style = window.getComputedStyle(this.el);
+        const matrix = new WebKitCSSMatrix(style.transform);
+        this.translateX = matrix.m41;
+        this.pointerStart = e.pageX;
+        this.el.addEventListener('pointermove', this.eventPointerMove);
+        document.addEventListener('pointerup', this.onPointerUp.bind(this));
+    }
+    onTouchStart(e) {
+        e.preventDefault();
+        this.el.style.transition = 'none';
+        const style = window.getComputedStyle(this.el);
+        const matrix = new WebKitCSSMatrix(style.transform);
+        this.translateX = matrix.m41;
+        this.pointerStart = e.changedTouches[0].pageX;
+    }
+    autoAdjust() {
+        if (this.joinParams.autoAdjust) {
+            const parentWidth = this.parent?.getBoundingClientRect().width || 0;
+            const ratio = Math.trunc((parentWidth + this.joinParams.gap) / (this.firstChildWidth + this.joinParams.gap));
+            this.adjustChildren(this.el, this.childCount, ratio, this.firstChildWidth, parentWidth, this.joinParams.gap, this.child);
+        }
+    }
     /**
      * Calcul la taille d'un élement ajustée à celle de son parent
      * @param ratio {number}
@@ -53,72 +130,10 @@ class Slide {
         });
         this.elWidth = (this.childWidth + gap - 1) * childCount;
     }
-    onPointerMove(e) {
-        console.log('Move');
-        const move = this.translateX - (this.pointerStart - e.pageX);
-        const restVisible = this.elWidth + move;
-        if (move < 0 && restVisible > this.parent.getBoundingClientRect().width) {
-            this.el.style.transform = `translateX(${move}px)`;
-            this.pointerEnd = move;
-        }
-    }
-    onPointerUp(e) {
-        console.log('Up');
-        this.el.removeEventListener('pointermove', this.eventPointerMove);
-        this.el.style.transition = `${this.joinParams.duration}s`;
-        this.el.style.transform = `translateX(-${this.replacer(this.pointerEnd)}px)`;
-    }
     replacer(move) {
         const ratio = Math.round(move / this.childWidth);
         const returnTo = this.child[-1 * ratio];
         return (returnTo?.getBoundingClientRect().left || 0) - this.el.getBoundingClientRect().left;
-    }
-    onPointerDown(e) {
-        console.log('Down');
-        e.preventDefault();
-        this.el.style.transition = 'none';
-        const style = window.getComputedStyle(this.el);
-        const matrix = new WebKitCSSMatrix(style.transform);
-        this.translateX = matrix.m41;
-        this.pointerStart = e.pageX;
-        this.eventPointerMove = this.onPointerMove.bind(this);
-        this.el.addEventListener('pointermove', this.eventPointerMove);
-        document.addEventListener('pointerup', this.onPointerUp.bind(this), { once: true });
-    }
-    /**
-     * Add a slide comportment to children of element
-     * @param el {HTMLElement} element dom when you want to make children slide
-     * @param params {Object} the parameters to apply
-     */
-    constructor(el, params = {}) {
-        this.joinParams = {
-            ...{
-                autoAdjust: false,
-                gap: 0,
-                duration: .3
-            },
-            ...params
-        };
-        this.el = el;
-        this.parent = this.el.parentElement;
-        this.el.style.transition = `${this.joinParams.duration}s`;
-        this.child = Array.from(this.el.children);
-        // TODO if autoAdjust is true make adjust
-        if (this.joinParams.autoAdjust) {
-            const firstChild = this.el.firstElementChild;
-            const childCount = this.child.length;
-            const firstChildWidth = firstChild?.getBoundingClientRect().width || 0;
-            const parentWidth = this.parent?.getBoundingClientRect().width || 0;
-            const ratio = Math.trunc((parentWidth + this.joinParams.gap) / (firstChildWidth + this.joinParams.gap));
-            this.adjustChildren(this.el, childCount, ratio, firstChildWidth, parentWidth, this.joinParams.gap, this.child);
-        }
-        // TODO Add scroll behavior
-        this.el.style.position = 'relative';
-        this.elementInitLeft = this.el.getBoundingClientRect().left;
-        this.el.addEventListener('pointerdown', this.onPointerDown.bind(this));
-        // TODO Add finger scroll behavior
-        // TODO Apply params
-        // TODO manage responsive
     }
 }
 export default Slide;
