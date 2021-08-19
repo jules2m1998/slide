@@ -48,6 +48,7 @@ class Slide {
         this.elementInitLeft = this.el.getBoundingClientRect().left;
         this.el.addEventListener('pointerdown', this.pointerDown);
         // TODO Add finger scroll behavior
+        this.parent.style.touchAction = "pan-y";
         this.touchStart = this.onTouchStart.bind(this);
         this.el.addEventListener('touchstart', this.touchStart);
         // TODO Apply params
