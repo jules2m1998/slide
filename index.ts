@@ -14,6 +14,10 @@ class Slide {
   firstChild: Element
   childCount = 0
   firstChildWidth = 0
+  widowsWidth = 0
+  pointerUpEvent: any
+  touchCancel: any
+  touchStart: any
 
 
 
@@ -51,11 +55,21 @@ class Slide {
 
     this.el.addEventListener('pointerdown', this.pointerDown)
     // TODO Add finger scroll behavior
-    this.el.addEventListener('touchstart', this.onTouchStart.bind(this))
+    this.touchStart = this.onTouchStart.bind(this)
+    this.el.addEventListener('touchstart', this.touchStart)
 
     // TODO Apply params
     // TODO manage responsive
-    window.addEventListener('resize', this.autoAdjust.bind(this))
+    this.widowsWidth = window.innerWidth
+    window.addEventListener('resize', () => {
+      if (this.widowsWidth !== window.innerWidth) {
+        this.removeAllEvent()
+        this.el.addEventListener('pointerdown', this.pointerDown)
+        this.el.addEventListener('touchstart', this.touchStart)
+        this.autoAdjust()
+        this.widowsWidth = window.innerWidth
+      }
+    })
   }
 
   onPointerMove(e: MouseEvent) {
@@ -68,11 +82,15 @@ class Slide {
     }
   }
 
-  onPointerUp() {
-    this.el.style.cursor = 'grab'
+  removeAllEvent() {
     this.el.removeEventListener('pointermove', this.eventPointerMove)
-    this.el.style.transition = `${this.joinParams.duration}s`
-    this.el.style.transform = `translateX(-${this.replacer(this.pointerEnd)}px)`
+    this.el.removeEventListener('pointerup', this.pointerUpEvent)
+    this.el.removeEventListener('pointerleave', this.pointerUpEvent)
+    this.el.removeEventListener('pointermove', this.eventPointerMove)
+    this.el.removeEventListener('pointerdown', this.pointerDown)
+    this.el.removeEventListener('touchend', this.touchCancel)
+    this.el.removeEventListener('touchcancel', this.touchCancel)
+    this.el.removeEventListener('touchstart', this.touchStart)
   }
 
   onPointerDown(e: MouseEvent) {
@@ -85,21 +103,34 @@ class Slide {
     this.el.style.touchAction = 'pan-y'
     this.el.style.cursor = 'grabbing'
 
-    this.el.addEventListener('pointermove', this.eventPointerMove)
+    this.pointerUpEvent = this.onPointerUp.bind(this)
+    this.removeAllEvent()
 
-    document.addEventListener('pointerup', this.onPointerUp.bind(this))
+    this.el.addEventListener('pointermove', this.eventPointerMove)
+    this.el.addEventListener('pointerup', this.pointerUpEvent)
+    this.el.addEventListener('pointerleave', this.pointerUpEvent)
+  }
+
+  onPointerUp() {
+    this.removeAllEvent()
+    this.el.addEventListener('pointerdown', this.pointerDown)
+    this.el.addEventListener('touchstart', this.touchStart)
+    this.el.style.cursor = 'grab'
+    this.el.style.transition = `${this.joinParams.duration}s`
+    this.el.style.transform = `translateX(-${this.replacer(this.pointerEnd)}px)`
   }
 
   onTouchStart(e: TouchEvent) {
     e.preventDefault()
-    this.el.removeEventListener('pointerdown', this.pointerDown)
     this.el.style.transition = 'none'
     const style = window.getComputedStyle(this.el);
     const matrix = new WebKitCSSMatrix(style.transform);
     this.translateX = matrix.m41
     this.pointerStart = e.changedTouches[0].pageX
-    this.el.addEventListener('touchend', this.onTouchCancel.bind(this))
-    this.el.addEventListener('touchcancel', this.onTouchCancel.bind(this))
+    this.touchCancel = this.onTouchCancel.bind(this)
+    this.removeAllEvent()
+    this.el.addEventListener('touchend', this.touchCancel)
+    this.el.addEventListener('touchcancel', this.touchCancel)
   }
 
   onTouchCancel() {
@@ -107,6 +138,9 @@ class Slide {
     this.onPointerUp()
   }
 
+  /**
+   * Ajuste la taille des élements dans leur parent
+   */
   autoAdjust() {
     if (this.joinParams.autoAdjust) {
       this.el.style.transform = `translateX(0px)`
@@ -164,6 +198,11 @@ class Slide {
     this.elWidth = (this.childWidth + gap - 1) * childCount
   }
 
+  /**
+   * Retourn le nombre de pixel qu'il faut pour replacer un élement après avoir lâcher le curseur
+   * @param move {number} nombre de pixel déplacé
+   * @return {number} nombre de pixel pour le replacement
+   */
   replacer(move: number): number {
     const ratio = Math.round(move / this.childWidth)
     const returnTo = this.child[-1 * ratio]
